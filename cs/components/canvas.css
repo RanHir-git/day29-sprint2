@@ -1,0 +1,23 @@
+.canvas-container {
+    width: 100%;
+    max-width: 800px;
+    min-height: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 2px solid #ccc;
+    background-color: #d3a0a0;
+}
+
+#canvasWrapper {
+    position: relative;
+    width: 100%;
+}
+
+#canvasWrapper canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #333;
+    background-color: white;
+    cursor: crosshair;
+}

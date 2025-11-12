@@ -1,0 +1,22 @@
+/* SETUP */
+@import url('/cs/setup/vars.css');
+@import url('/cs/setup/typography.css');
+
+/* BASICS */
+@import url('/cs/basics/base.css');
+@import url('/cs/basics/layout.css');
+@import url('/cs/basics/helpers.css');
+
+/* COMPONENTS */
+@import url('/cs/components/toolbar.css');
+@import url('/cs/components/canvas.css');
+
+/* Text input overlay */
+.edit-input {
+    position: absolute;
+    border: 2px solid #667eea;
+    padding: 2px 5px;
+    background: transparent;
+    outline: none;
+}
+

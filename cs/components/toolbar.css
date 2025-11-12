@@ -1,0 +1,14 @@
+.toolbar-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+    flex-wrap: wrap;
+}
+
+.toolbar-container input,
+.toolbar-container select,
+.toolbar-container button {
+    padding: 5px 10px;
+}
