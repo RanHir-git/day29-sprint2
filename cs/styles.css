@@ -10,7 +10,7 @@
 /* COMPONENTS */
 @import url('/cs/components/toolbar.css');
 @import url('/cs/components/canvas.css');
-
+@import url('/cs/components/meme-selector.css');
 /* Text input overlay */
 .edit-input {
     position: absolute;

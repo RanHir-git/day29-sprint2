@@ -27,26 +27,17 @@
         </nav>
     </header>
     <span class="toolbar-container">
-        <input type="color" id="strokeColor" value="#000000" onchange="onChangeColor(event)">
-        <input type="number" id="lineWidth" value="2" onchange="onSetSize(event)" min="1" max="100">
-        <select id="addShape" onchange="onChangeShape(event)">
-            <option value="brush" selected>Brush</option>
-            <option value="square">square</option>
-            <option value="round">round</option>
-            <option value="eraser">Eraser</option>
-        </select>
-        <span>
-            <label for="upload">Background photo:</label>
-            <input type="file" id="upload" class="file-input btn" name="image" onchange="onImgInput(event)" />
-        </span>
-        <button id="addTextBtn">Add Text</button>
-        <input type="number" id="fontSize" value="20" min="10" max="100">
         <select id="fontFamily">
             <option value="Arial">Arial</option>
             <option value="Times New Roman">Times New Roman</option>
             <option value="Courier New">Courier New</option>
             <option value="Impact">Impact</option>
-        </select>
+        </select>        
+        <span>
+        <button id="backgroundBtn", onclick="onImageGallery()">Meme Selector</button>    
+        </span>
+        <button id="addTextBtn">Add Text</button>
+        <input type="number" id="fontSize" value="20" min="10" max="100">
         <input type="color" id="textColor" value="#000000">
         <button id="clearBtn" onclick="onClearCanvas()">Clear Canvas</button>
     </span>
@@ -56,10 +47,15 @@
             <canvas width="400" height="400"></canvas>
         </div>
     </div>
-
+    <div class="meme-selector" style="display: none;"><h1>Select Image</h1></div>
     <script src="js/services/editor.service.js"></script>
     <script src="js/services/canvas.service.js"></script>
+    <script src="js/services/meme.service.js"></script>
     <script src="js/controller.js"></script>
+    <script>
+        // Make onSelectImg available globally (defined in editor.service.js)
+        window.onSelectImg = onSelectImg
+    </script>
     
 </body>
 
