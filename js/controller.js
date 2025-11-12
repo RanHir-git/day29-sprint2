@@ -235,8 +235,6 @@ function setupControlEvents() {
     clearBtn.addEventListener('click', onClearButton)
 }
 
-
-
 function onChangeColor(ev) {
     const color = ev.target.value
     setDrawSetting('strokeColor', color, gCtx)
