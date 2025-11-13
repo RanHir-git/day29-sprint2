@@ -80,3 +80,45 @@ function getEmojis() {
 function getEmojiById(id) {
     return gEmojis.find(emoji => emoji.id === id)
 }
+
+//////////////////////////////emoji size controls/////////////////////////////////////
+
+function onIncreaseEmojiSizeService(selectedEmojiIndex, emojiObjects, getEmojiObjects, renderCanvas, updateEmojiSizeButtonsService) {
+    if (selectedEmojiIndex === -1) return
+    const currentEmojiObjects = getEmojiObjects()
+    if (currentEmojiObjects[selectedEmojiIndex]) {
+        const currentSize = currentEmojiObjects[selectedEmojiIndex].size || 40
+        currentEmojiObjects[selectedEmojiIndex].size = Math.min(currentSize + 5, 200) // Max size 200
+        renderCanvas()
+        updateEmojiSizeButtonsService(selectedEmojiIndex, getEmojiObjects)
+    }
+}
+
+function onDecreaseEmojiSizeService(selectedEmojiIndex, emojiObjects, getEmojiObjects, renderCanvas, updateEmojiSizeButtonsService) {
+    if (selectedEmojiIndex === -1) return
+    const currentEmojiObjects = getEmojiObjects()
+    if (currentEmojiObjects[selectedEmojiIndex]) {
+        const currentSize = currentEmojiObjects[selectedEmojiIndex].size || 40
+        currentEmojiObjects[selectedEmojiIndex].size = Math.max(currentSize - 5, 10) // Min size 10
+        renderCanvas()
+        updateEmojiSizeButtonsService(selectedEmojiIndex, getEmojiObjects)
+    }
+}
+
+function updateEmojiSizeButtonsService(selectedEmojiIndex, getEmojiObjects) {
+    const emojiSizeUp = document.getElementById('emojiSizeUp')
+    const emojiSizeDown = document.getElementById('emojiSizeDown')
+    
+    if (selectedEmojiIndex === -1) {
+        if (emojiSizeUp) emojiSizeUp.disabled = true
+        if (emojiSizeDown) emojiSizeDown.disabled = true
+        return
+    }
+    
+    const emojiObjects = getEmojiObjects()
+    if (emojiObjects[selectedEmojiIndex]) {
+        const currentSize = emojiObjects[selectedEmojiIndex].size || 40
+        if (emojiSizeUp) emojiSizeUp.disabled = currentSize >= 200
+        if (emojiSizeDown) emojiSizeDown.disabled = currentSize <= 10
+    }
+}

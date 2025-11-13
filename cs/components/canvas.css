@@ -1,11 +1,12 @@
 .canvas-container {
-    width: 100%;
-    max-width: 800px;
+    flex: 1;
+    min-width: 0;
     min-height: 600px;
-    margin: 20px auto;
     padding: 20px;
     border: 2px solid #ccc;
-    background-color: #d3a0a0;
+    background-color: #b1cfff;
+    box-sizing: border-box;
+    border-radius: 4px;
 }
 
 #canvasWrapper {

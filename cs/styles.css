@@ -1,7 +1,6 @@
 /* SETUP */
 @import url('/cs/setup/vars.css');
 @import url('/cs/setup/typography.css');
-
 /* BASICS */
 @import url('/cs/basics/base.css');
 @import url('/cs/basics/layout.css');
@@ -11,6 +10,12 @@
 @import url('/cs/components/toolbar.css');
 @import url('/cs/components/canvas.css');
 @import url('/cs/components/meme-selector.css');
+@import url('/cs/components/main-header.css');
+
+/* MEDIA QUERIES - Must be last to override component styles */
+@import url('/cs/setup/mq.css');
+
+
 /* Text input overlay */
 .edit-input {
     position: absolute;

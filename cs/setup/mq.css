@@ -1,0 +1,19 @@
+@media (max-width: 800px) {
+    body {
+        background-color: rgb(132, 142, 248);
+    }
+    
+    .main-layout {
+        flex-direction: column !important;
+    }
+    
+    .toolbar-download-share-container {
+        width: 100% !important;
+        flex: none !important;
+    }
+    
+    .canvas-container {
+        width: 100% !important;
+        flex: none !important;
+    }
+}

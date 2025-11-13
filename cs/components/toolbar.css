@@ -1,21 +1,153 @@
-.toolbar-container {
-    display: flex;
+.toolbar-download-share-container {
+    display: grid;
+    grid-template-rows: repeat(4, auto);
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
-    align-items: center;
+    flex: 1;
+    min-width: 0;
     padding: 10px;
     background-color: #f0f0f0;
-    flex-wrap: wrap;
+    border-radius: 4px;
+    box-sizing: border-box;
+    height: 400px;
+    background-color: #b1cfff;
+}
+
+.toolbar-container {
+    display: contents;
 }
 
 .toolbar-container input,
 .toolbar-container select,
 .toolbar-container button {
     padding: 5px 10px;
+    max-width: 200px;
+    width: 100%;
+    box-sizing: border-box;
+    justify-self: center;
+}
+
+/* Row 1: Meme Selector, Clear Canvas */
+.toolbar-container > span {
+    display: contents;
+}
+
+.toolbar-container button:hover {
+    background-color: #ffeded;
+    cursor: pointer;
+}
+
+#memeSelectorBtn {
+    grid-row: 1;
+    grid-column: 1 / 4;
+    justify-self: center;
+    height: 50%;
+    align-self: center;
+}
+
+#clearBtn {
+    grid-row: 1;
+    grid-column: 4 / 7;
+    justify-self: baseline;
+    height: 50%;
+    align-self: center;
+}
+
+/* Row 2: Add Text, Add Emoji */
+#addTextBtn {
+    grid-row: 2;
+    grid-column: 1 / 4;
+    justify-self: center;
+    height: 20%;
+    align-self: center;
 }
 
 .emoji-dropdown-container {
+    grid-row: 2;
+    grid-column: 4 / 6;
     position: relative;
-    display: inline-block;
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    justify-self: baseline;
+    height: 30%;
+    align-self: center;
+    margin-top: 10px;
+}
+#addEmojiBtn {
+    height: 70%;
+}
+
+/* Row 3: Font Size, Font Family, Text Color */
+#fontSize {
+    grid-row: 3;
+    grid-column: 1 / 3;
+    justify-self: center;
+    height: 30%;
+    align-self: center;
+}
+
+#fontFamily {
+    grid-row: 3;
+    grid-column: 3 / 5;
+    justify-self: center;
+    height: 50%;
+    align-self: center;
+}
+
+#textColor {
+    grid-row: 3;
+    grid-column: 5 / 7;
+    justify-self: center;
+    height: 30%;
+    align-self: center;
+}
+
+/* Row 4: Share and Download */
+.share-download-container {
+    margin-top: 30px;
+    justify-self:center;
+    grid-row: 4;
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+}
+
+
+.share-download-container .btn {
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    flex: 1;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.share-download-container form {
+    margin: 0;
+    flex: 1;
+}
+
+.share-download-container form button {
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    &:hover {
+        background-color: #ffeded;
+    }
+}
+
+/*///////////////////////// emoji add+size controls /////////////////////////*/
+
+.emoji-dropdown-container button {
+    width: 100%;
 }
 
 .emoji-dropdown {
@@ -60,4 +192,63 @@
 .emoji-item.selected {
     background-color: #e0e0e0;
     border-radius: 4px;
+}
+
+.emoji-size-control {
+    gap: 10px;
+    flex-direction: row;
+    grid-row: 2;
+    grid-column: 6 / 7;
+    display: flex;
+    height: 30%;
+    align-self: center;
+    justify-self: baseline;
+    max-width: 50px;
+    margin-bottom: 30px;
+}
+
+
+.emoji-size-btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 15px;
+}
+
+.emoji-size-btn {
+    flex: 1;
+    padding: 0;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    box-sizing: border-box;
+}
+
+.emoji-size-btn:last-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom: none;
+}
+
+.emoji-size-btn:first-child {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.emoji-size-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.emoji-size-btn:active {
+    background-color: #ccc;
+}
+
+.emoji-size-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

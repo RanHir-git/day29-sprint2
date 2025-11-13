@@ -1,0 +1,20 @@
+.main-header {
+    position: relative;
+    z-index: 100;
+    height: var(--main--header--height);
+    max-width: var(--max-width);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.main-header .logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #000;
+    text-decoration: none;
+    letter-spacing: 2px;
+    font-family: 'Arial', sans-serif;
+    /* font-style: italic; */
+}

@@ -1,17 +1,18 @@
 .meme-selector {
     display: none;
     position: fixed;
-    top: 0;
+    top: var(--main--header--height);
     left: 0;
     width: 100%;
-    height: 100%;
-    background-color: rgb(224,224,224);
+    height: calc(100% - var(--main--header--height));
+    background-color: rgb(178, 183, 235);
     justify-content: flex-start;
     align-items: center;
     flex-direction: column;
     overflow-y: auto;
     padding: 20px;
     box-sizing: border-box;
+    z-index: 10;
 }
 
 .meme-selector * {

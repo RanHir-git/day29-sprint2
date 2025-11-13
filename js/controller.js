@@ -18,7 +18,7 @@ let clearBtn
 let fontSizeInput
 let fontFamilySelect
 let textColorInput
-let textBgColorInput
+
 //drag vs click
 let isDragging = false   //to detect drag
 let hasDragged = false   //track if a drag occurred (to prevent click after drag)
@@ -40,12 +40,6 @@ function onInit() {
     onImageGallery()
 }
 
-// Ensure onInit is available globally
-window.onInit = onInit
-window.onResize = onResize
-window.onChangeTextColor = onChangeTextColor
-window.onFilterMemes = onFilterMemes
-
 function initDomElements() {
     gElCanvas = document.querySelector('canvas')
     gCtx = gElCanvas.getContext('2d')
@@ -55,7 +49,6 @@ function initDomElements() {
     fontSizeInput = document.getElementById('fontSize')
     fontFamilySelect = document.getElementById('fontFamily')
     textColorInput = document.getElementById('textColor')
-    textBgColorInput = document.getElementById('textBgColor')
 }
 
 function onResize() {
@@ -97,13 +90,15 @@ function renderCanvas() {
     emojiObjects = getEmojiObjects()
     emojiObjects.forEach((emojiObj, index) => {
         if (emojiObj.img && emojiObj.img.complete) {
-            gCtx.drawImage(emojiObj.img, emojiObj.x - 20, emojiObj.y - 20, 40, 40)
+            const size = emojiObj.size || 40
+            const halfSize = size / 2
+            gCtx.drawImage(emojiObj.img, emojiObj.x - halfSize, emojiObj.y - halfSize, size, size)
             
             // Draw selection border if this emoji is selected
             if (selectedEmojiIndex === index) {
                 gCtx.strokeStyle = '#007bff'
                 gCtx.lineWidth = 2
-                gCtx.strokeRect(emojiObj.x - 22, emojiObj.y - 22, 44, 44)
+                gCtx.strokeRect(emojiObj.x - halfSize - 2, emojiObj.y - halfSize - 2, size + 4, size + 4)
             }
         }
     })
@@ -140,12 +135,14 @@ function onClickedEmojiIndex(x, y) {
     emojiObjects = getEmojiObjects()
     for (let i = emojiObjects.length - 1; i >= 0; i--) {
         const emojiObj = emojiObjects[i]
-        // Emoji is 40x40, centered at (x, y)
-        const emojiLeft = emojiObj.x - 40
-        const emojiRight = emojiObj.x + 20
-        const emojiTop = emojiObj.y - 20
-        const emojiBottom = emojiObj.y + 20
-
+        const size = emojiObj.size || 40
+        const halfSize = size / 2
+        // Emoji is centered at (x, y)
+        const emojiLeft = emojiObj.x - size
+        const emojiRight = emojiObj.x + halfSize
+        const emojiTop = emojiObj.y - halfSize
+        const emojiBottom = emojiObj.y + halfSize
+        
         if (x >= emojiLeft && x <= emojiRight && y >= emojiTop && y <= emojiBottom) {
             return i
         }
@@ -167,8 +164,6 @@ function finishEditing(e) {
     } else {
         const targetId = e.relatedTarget.id
         const toolbarContainer = document.querySelector('.toolbar-container')
-        const canvasWrapper = document.getElementById('canvasWrapper')
-        const canvas = document.querySelector('canvas')
 
         // If clicking on an allowed control, don't finish editing
         if (allowedControls.includes(targetId)) {
@@ -200,7 +195,6 @@ function finishEditing(e) {
     } else {
         // Delete text if empty
         textObjects.splice(index, 1)
-        editingIndex = -1
         if (typeof setEditingIndex === 'function') {
             setEditingIndex(-1)
         }
@@ -233,8 +227,7 @@ function createTextInput(obj, index) {  //index is to know where to put/delete i
         if (!textObj) return
         updateInputElementStyling(input, textObj, gElCanvas.getBoundingClientRect(), canvasWrapper.getBoundingClientRect(), gElCanvas.width, gElCanvas.height)
     }
-    // Store index on input element for later access (already set above, but ensuring it's there)
-    // Flag to track if we're clicking on toolbar (stored on input element)
+
     input.isClickingToolbar = false
 
     // Prevent blur when clicking on toolbar controls
@@ -305,16 +298,19 @@ function handleCanvasClick(e) {
     // Update last click info
     lastClickTime = currentTime
     lastClickIndex = clickedIndex
+    
     // pressed on an emoji on the canvas
     if (!gSelectedEmoji && clickedEmojiIndex !== -1) {
         selectedEmojiIndex = clickedEmojiIndex
         renderCanvas()
+        updateEmojiSizeButtons()
         return
     }
     // Deselect emoji if clicking on empty canvas
     if (!gSelectedEmoji && clickedIndex === -1) {
         selectedEmojiIndex = -1
         renderCanvas()
+        updateEmojiSizeButtons()
     }
     if (isDoubleClick && clickedIndex !== -1) {  // Double-click to edit existing text
         addingTextMode = false
@@ -327,7 +323,6 @@ function handleCanvasClick(e) {
         textObjects = getTextObjects()
         if (textObjects[clickedIndex]) {
             if (textColorInput) textColorInput.value = textObjects[clickedIndex].color
-            if (textBgColorInput) textBgColorInput.value = textObjects[clickedIndex].bgColor || '#000000'
             if (fontSizeInput) fontSizeInput.value = textObjects[clickedIndex].fontSize
             if (fontFamilySelect) fontFamilySelect.value = textObjects[clickedIndex].fontFamily
         }
@@ -336,7 +331,7 @@ function handleCanvasClick(e) {
 
         //////////////add text////////////////////
     } else if (addingTextMode && clickedIndex === -1) {    //add new text
-        const newText = createNewText(x, y, fontSizeInput, fontFamilySelect, textColorInput, textBgColorInput)
+        const newText = createNewText(x, y, fontSizeInput, fontFamilySelect, textColorInput)
         textObjects.push(newText)
         editingIndex = textObjects.length - 1
         if (typeof setEditingIndex === 'function') {
@@ -356,7 +351,8 @@ function handleCanvasClick(e) {
             const newEmoji = {
                 img: gSelectedEmoji,
                 x: x+20,
-                y: y
+                y: y,
+                size: 40  // Default size
             }
             emojiObjects.push(newEmoji)
             resetSelectedEmoji()
@@ -365,6 +361,7 @@ function handleCanvasClick(e) {
             // Select clicked emoji
             selectedEmojiIndex = clickedEmojiIndex
             renderCanvas()
+            updateEmojiSizeButtons()
         }
     }
 }
@@ -412,6 +409,7 @@ function onClearButton() {
         textObjects = []
         emojiObjects = []
         selectedEmojiIndex = -1
+        updateEmojiSizeButtons()
         // Clear the selected image
         gSelectedImg = null
         selectedImgMode = false
@@ -451,6 +449,7 @@ function handleCanvasDragStart(e) {
         dragOffset.x = dragStartPos.x - draggedEmoji.x
         dragOffset.y = dragStartPos.y - draggedEmoji.y
         selectedEmojiIndex = draggedEmojiIndex
+        updateEmojiSizeButtons()
         return
     }
 }
@@ -513,6 +512,7 @@ function setupCanvasEvents() {
                 emojiObjects.splice(selectedEmojiIndex, 1)
                 selectedEmojiIndex = -1
                 renderCanvas()
+                updateEmojiSizeButtons()
             }
         }
     })
@@ -564,10 +564,19 @@ function setupControlEvents() {
     if (fontFamilySelect) {
         fontFamilySelect.addEventListener('change', onChangeFontFamily)
     }
-    if (textBgColorInput) {
-        textBgColorInput.addEventListener('change', onChangeTextBgColor)
-        textBgColorInput.addEventListener('input', onChangeTextBgColor) // For real-time updates
+    
+    // Emoji size controls
+    const emojiSizeUp = document.getElementById('emojiSizeUp')
+    const emojiSizeDown = document.getElementById('emojiSizeDown')
+    if (emojiSizeUp) {
+        emojiSizeUp.addEventListener('click', onIncreaseEmojiSize)
     }
+    if (emojiSizeDown) {
+        emojiSizeDown.addEventListener('click', onDecreaseEmojiSize)
+    }
+    
+    // Update button states when emoji selection changes
+    updateEmojiSizeButtons()
 }
 
 
@@ -593,9 +602,6 @@ function onChangeTextProperty(ev, property) {
     }
 }
 
-function onChangeTextBgColor(ev) {
-    onChangeTextProperty(ev, 'bgColor')
-}
 function onChangeTextColor(ev) {
     onChangeTextProperty(ev, 'color')
 }
@@ -606,6 +612,20 @@ function onChangeFontSize(ev) {
 
 function onChangeFontFamily(ev) {
     onChangeTextProperty(ev, 'fontFamily')
+}
+
+//////////////////////////////emoji size controls/////////////////////////////////////
+
+function onIncreaseEmojiSize() {
+    onIncreaseEmojiSizeService(selectedEmojiIndex, emojiObjects, getEmojiObjects, renderCanvas, updateEmojiSizeButtonsService)
+}
+
+function onDecreaseEmojiSize() {
+    onDecreaseEmojiSizeService(selectedEmojiIndex, emojiObjects, getEmojiObjects, renderCanvas, updateEmojiSizeButtonsService)
+}
+
+function updateEmojiSizeButtons() {
+    updateEmojiSizeButtonsService(selectedEmojiIndex, getEmojiObjects)
 }
 
 //////////////////////////////emojis/////////////////////////////////////
@@ -720,6 +740,12 @@ function showGallery() {
     const details = document.querySelector('.meme-selector')
     details.innerHTML = wholeContent
     details.style.display = 'flex'
+    
+    // Hide share-download-container when in meme selection mode
+    const shareDownloadContainer = document.querySelector('.share-download-container')
+    if (shareDownloadContainer) {
+        shareDownloadContainer.style.display = 'none'
+    }
 }
 
 
@@ -765,6 +791,12 @@ function closeGallery() {
     const canvasContainer = document.querySelector('.canvas-container')
     if (canvasContainer) {
         canvasContainer.style.display = 'block'
+    }
+
+    // Show share-download-container when exiting meme selection mode
+    const shareDownloadContainer = document.querySelector('.share-download-container')
+    if (shareDownloadContainer) {
+        shareDownloadContainer.style.display = 'flex'
     }
 
     selectedImgMode = false
