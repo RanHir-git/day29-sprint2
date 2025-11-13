@@ -18,13 +18,14 @@ let clearBtn
 let fontSizeInput
 let fontFamilySelect
 let textColorInput
-
+let textBgColorInput
 //drag vs click
 let isDragging = false   //to detect drag
 let hasDragged = false   //track if a drag occurred (to prevent click after drag)
 let dragStartPos = null
 let dragOffset = { x: 0, y: 0 }
 let draggedTextIndex = -1   //in textObjects array
+let draggedEmojiIndex = -1   //in emojiObjects array
 let lastClickTime = 0   //to detect double click
 let lastClickIndex = -1   //to detect double click on same text
 
@@ -35,6 +36,7 @@ function onInit() {
     setupCanvasEvents()
     setupControlEvents()
     onResize()
+    onAddEmojisBtn()
     onImageGallery()
 }
 
@@ -53,6 +55,7 @@ function initDomElements() {
     fontSizeInput = document.getElementById('fontSize')
     fontFamilySelect = document.getElementById('fontFamily')
     textColorInput = document.getElementById('textColor')
+    textBgColorInput = document.getElementById('textBgColor')
 }
 
 function onResize() {
@@ -89,6 +92,21 @@ function renderCanvas() {
         gCtx.textBaseline = 'alphabetic' // Ensure consistent baseline
         gCtx.fillText(obj.text, obj.x, obj.y)
     })
+
+    // Draw all emoji objects
+    emojiObjects = getEmojiObjects()
+    emojiObjects.forEach((emojiObj, index) => {
+        if (emojiObj.img && emojiObj.img.complete) {
+            gCtx.drawImage(emojiObj.img, emojiObj.x - 20, emojiObj.y - 20, 40, 40)
+            
+            // Draw selection border if this emoji is selected
+            if (selectedEmojiIndex === index) {
+                gCtx.strokeStyle = '#007bff'
+                gCtx.lineWidth = 2
+                gCtx.strokeRect(emojiObj.x - 22, emojiObj.y - 22, 44, 44)
+            }
+        }
+    })
 }
 
 
@@ -115,6 +133,24 @@ function onClickedTextIndex(x, y) {
         }
     }
     return -1 // No text found
+}
+
+//index of emoji at click position
+function onClickedEmojiIndex(x, y) {
+    emojiObjects = getEmojiObjects()
+    for (let i = emojiObjects.length - 1; i >= 0; i--) {
+        const emojiObj = emojiObjects[i]
+        // Emoji is 40x40, centered at (x, y)
+        const emojiLeft = emojiObj.x - 40
+        const emojiRight = emojiObj.x + 20
+        const emojiTop = emojiObj.y - 20
+        const emojiBottom = emojiObj.y + 20
+
+        if (x >= emojiLeft && x <= emojiRight && y >= emojiTop && y <= emojiBottom) {
+            return i
+        }
+    }
+    return -1 // No emoji found
 }
 
 // Saves edited text and removes input field
@@ -221,16 +257,13 @@ function createTextInput(obj, index) {  //index is to know where to put/delete i
         const control = document.getElementById(controlId)
         if (control) {
             control.addEventListener('blur', () => {
-                // Small delay to ensure the control has processed its change
-                setTimeout(() => {
-                    if (input && input.parentNode) {
-                        const elActive = document.activeElement
-                        // Only refocus if not clicking on another allowed control
-                        if (!elActive || !allowedControls.includes(elActive.id)) {
-                            input.focus()
-                        }
+                if (input && input.parentNode) {
+                    const elActive = document.activeElement
+                    // Only refocus if not clicking on another allowed control
+                    if (!elActive || !allowedControls.includes(elActive.id)) {
+                        input.focus()
                     }
-                }, 100)
+                }
             })
         }
     })
@@ -258,24 +291,31 @@ function createTextInput(obj, index) {  //index is to know where to put/delete i
 
 function handleCanvasClick(e) {
     if (isDragging) return
-
     // Don't process click if a drag just occurred
     if (hasDragged) {
         hasDragged = false
         return
     }
-
     const { x, y } = XYHandler(e)
     const clickedIndex = onClickedTextIndex(x, y)
+    const clickedEmojiIndex = onClickedEmojiIndex(x, y)
     const currentTime = Date.now()
-
     // Check for double-click (within 300ms and same text)
     const isDoubleClick = (currentTime - lastClickTime < 300) && (clickedIndex === lastClickIndex) && (clickedIndex !== -1)
-
     // Update last click info
     lastClickTime = currentTime
     lastClickIndex = clickedIndex
-
+    // pressed on an emoji on the canvas
+    if (!gSelectedEmoji && clickedEmojiIndex !== -1) {
+        selectedEmojiIndex = clickedEmojiIndex
+        renderCanvas()
+        return
+    }
+    // Deselect emoji if clicking on empty canvas
+    if (!gSelectedEmoji && clickedIndex === -1) {
+        selectedEmojiIndex = -1
+        renderCanvas()
+    }
     if (isDoubleClick && clickedIndex !== -1) {  // Double-click to edit existing text
         addingTextMode = false
         onUpdateAddTextButton()
@@ -287,13 +327,16 @@ function handleCanvasClick(e) {
         textObjects = getTextObjects()
         if (textObjects[clickedIndex]) {
             if (textColorInput) textColorInput.value = textObjects[clickedIndex].color
+            if (textBgColorInput) textBgColorInput.value = textObjects[clickedIndex].bgColor || '#000000'
             if (fontSizeInput) fontSizeInput.value = textObjects[clickedIndex].fontSize
             if (fontFamilySelect) fontFamilySelect.value = textObjects[clickedIndex].fontFamily
         }
         renderCanvas() // Hide the text being edited before showing input
         createTextInput(textObjects[clickedIndex], clickedIndex)
+
+        //////////////add text////////////////////
     } else if (addingTextMode && clickedIndex === -1) {    //add new text
-        const newText = createNewText(x, y, fontSizeInput, fontFamilySelect, textColorInput)
+        const newText = createNewText(x, y, fontSizeInput, fontFamilySelect, textColorInput, textBgColorInput)
         textObjects.push(newText)
         editingIndex = textObjects.length - 1
         if (typeof setEditingIndex === 'function') {
@@ -303,20 +346,47 @@ function handleCanvasClick(e) {
         createTextInput(newText, textObjects.length - 1)
         addingTextMode = false
         onUpdateAddTextButton()
+        
+        ///////////////////add emoji///////////////////
+    } else if (gSelectedEmoji && clickedIndex === -1) {  
+        const clickedEmojiIndex = onClickedEmojiIndex(x, y)
+        if (clickedEmojiIndex === -1 && gSelectedEmoji && gSelectedEmoji.complete) {
+            // Add new emoji to canvas
+            emojiObjects = getEmojiObjects()
+            const newEmoji = {
+                img: gSelectedEmoji,
+                x: x+20,
+                y: y
+            }
+            emojiObjects.push(newEmoji)
+            resetSelectedEmoji()
+            renderCanvas()
+        } else if (clickedEmojiIndex !== -1) {
+            // Select clicked emoji
+            selectedEmojiIndex = clickedEmojiIndex
+            renderCanvas()
+        }
     }
 }
 
 // hover handler 
 function handleCanvasHover(e) {
     if (isDragging) {
+        // Show grab cursor when dragging emoji, grabbing when dragging text
         gElCanvas.style.cursor = 'grabbing'
         return
     }
 
     const { x, y } = XYHandler(e)
-    const hoveredIndex = onClickedTextIndex(x, y)
+    const hoveredTextIndex = onClickedTextIndex(x, y)
+    const hoveredEmojiIndex = onClickedEmojiIndex(x, y)
 
-    if (hoveredIndex !== -1) {
+    // Check if in add emoji mode first
+    if (gSelectedEmoji) {
+        gElCanvas.style.cursor = 'crosshair'
+    } else if (hoveredTextIndex !== -1) {
+        gElCanvas.style.cursor = 'grab'
+    } else if (hoveredEmojiIndex !== -1) {
         gElCanvas.style.cursor = 'grab'
     } else if (addingTextMode) {
         gElCanvas.style.cursor = 'crosshair'
@@ -340,6 +410,8 @@ function onUpdateAddTextButton() {
 function onClearButton() {
     if (confirm('Are you sure you want to clear the canvas?')) {
         textObjects = []
+        emojiObjects = []
+        selectedEmojiIndex = -1
         // Clear the selected image
         gSelectedImg = null
         selectedImgMode = false
@@ -349,46 +421,75 @@ function onClearButton() {
             elGSelectedImg = null
         }
         renderCanvas()
-    }else return
+    } else return
 }
-
+///////////////////////drag handler //////////////////////
 function handleCanvasDragStart(e) {
     // Don't start drag if text is being edited or in add text mode
     if (editingIndex !== -1 || addingTextMode) return
 
     hasDragged = false  // Reset drag flag
     dragStartPos = XYHandler(e)
+
+    // Check for text first, then emoji
     draggedTextIndex = onClickedTextIndex(dragStartPos.x, dragStartPos.y)
-    if (draggedTextIndex === -1) return
-    isDragging = true
-    // Calculate offset from click point to text position
-    textObjects = getTextObjects()
-    const draggedText = textObjects[draggedTextIndex]
-    dragOffset.x = dragStartPos.x - draggedText.x
-    dragOffset.y = dragStartPos.y - draggedText.y
+    if (draggedTextIndex !== -1) {
+        isDragging = true
+        textObjects = getTextObjects()
+        const draggedText = textObjects[draggedTextIndex]
+        dragOffset.x = dragStartPos.x - draggedText.x
+        dragOffset.y = dragStartPos.y - draggedText.y
+        return
+    }
+
+    // Check for emoji
+    draggedEmojiIndex = onClickedEmojiIndex(dragStartPos.x, dragStartPos.y)
+    if (draggedEmojiIndex !== -1) {
+        isDragging = true
+        emojiObjects = getEmojiObjects()
+        const draggedEmoji = emojiObjects[draggedEmojiIndex]
+        dragOffset.x = dragStartPos.x - draggedEmoji.x
+        dragOffset.y = dragStartPos.y - draggedEmoji.y
+        selectedEmojiIndex = draggedEmojiIndex
+        return
+    }
 }
 
 function handleCanvasDragEnd(e) {
     if (!isDragging) return
     isDragging = false
     draggedTextIndex = -1
+    draggedEmojiIndex = -1
     dragOffset = { x: 0, y: 0 }
     renderCanvas()
 }
 
 function handleCanvasDrag(e) {
-    if (!isDragging || draggedTextIndex === -1) return
+    if (!isDragging) return
     hasDragged = true  // Mark that a drag occurred
     const { x, y } = XYHandler(e)
-    textObjects = getTextObjects()
-    const draggedText = textObjects[draggedTextIndex]
 
-    // Calculate new position (subtract offset to maintain relative position)
-    draggedText.x = x - dragOffset.x
-    draggedText.y = y - dragOffset.y
-    renderCanvas()
+    // Drag text
+    if (draggedTextIndex !== -1) {
+        textObjects = getTextObjects()
+        const draggedText = textObjects[draggedTextIndex]
+        draggedText.x = x - dragOffset.x
+        draggedText.y = y - dragOffset.y
+        renderCanvas()
+        return
+    }
+
+    // Drag emoji
+    if (draggedEmojiIndex !== -1) {
+        emojiObjects = getEmojiObjects()
+        const draggedEmoji = emojiObjects[draggedEmojiIndex]
+        draggedEmoji.x = x - dragOffset.x
+        draggedEmoji.y = y - dragOffset.y
+        renderCanvas()
+    }
 }
 
+/////////////event listener///////////////////
 // Setup all canvas event listeners
 function setupCanvasEvents() {
     // Mouse events
@@ -403,6 +504,18 @@ function setupCanvasEvents() {
     gElCanvas.addEventListener('mousedown', handleCanvasDragStart)
     gElCanvas.addEventListener('mouseup', handleCanvasDragEnd)
     gElCanvas.addEventListener('mouseout', handleCanvasDragEnd)
+
+    // Keyboard events for deleting selected emoji
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && selectedEmojiIndex !== -1 && !isDragging) {
+            emojiObjects = getEmojiObjects()
+            if (emojiObjects[selectedEmojiIndex]) {
+                emojiObjects.splice(selectedEmojiIndex, 1)
+                selectedEmojiIndex = -1
+                renderCanvas()
+            }
+        }
+    })
 
     // Touch events -   didnt do on my own, got it from internet
     gElCanvas.addEventListener('touchstart', (e) => {
@@ -451,6 +564,10 @@ function setupControlEvents() {
     if (fontFamilySelect) {
         fontFamilySelect.addEventListener('change', onChangeFontFamily)
     }
+    if (textBgColorInput) {
+        textBgColorInput.addEventListener('change', onChangeTextBgColor)
+        textBgColorInput.addEventListener('input', onChangeTextBgColor) // For real-time updates
+    }
 }
 
 
@@ -476,6 +593,9 @@ function onChangeTextProperty(ev, property) {
     }
 }
 
+function onChangeTextBgColor(ev) {
+    onChangeTextProperty(ev, 'bgColor')
+}
 function onChangeTextColor(ev) {
     onChangeTextProperty(ev, 'color')
 }
@@ -496,25 +616,68 @@ function onSelectEmoji(imgEl) {
         resetSelectedEmoji()
         return
     }
-    //select the clicked image
-    const imgs = document.querySelectorAll('.select-an-image-container img')
-    imgs.forEach(el => el.classList.remove('selected'))
-    imgEl.classList.add('selected')
+    //select the clicked emoji
+    const imgs = document.querySelectorAll('.emoji-item img')
+    imgs.forEach(el => el.parentElement.classList.remove('selected'))
+    imgEl.parentElement.classList.add('selected')
     const img = new Image()
     img.src = imgEl.src
-    gSelectedImg = img
-    elGSelectedImg = imgEl
-    selectedImgMode = true
+    gSelectedEmoji = img
+    elGSelectedEmoji = imgEl
 }
 
 function resetSelectedEmoji() {
-    elGSelectedImg.classList.remove('selected')
-    gSelectedImg = null
-    elGSelectedImg = null
-    selectedImgMode = false
+    if (elGSelectedEmoji && elGSelectedEmoji.parentElement) {
+        elGSelectedEmoji.parentElement.classList.remove('selected')
+    }
+    gSelectedEmoji = null
+    elGSelectedEmoji = null
 }
 
+function onAddEmojisBtn() {
+    const addEmojiBtn = document.getElementById('addEmojiBtn')
+    const emojiDropdown = document.getElementById('emoji-dropdown')
 
+    if (!addEmojiBtn || !emojiDropdown) return
+
+    // Get emojis and create dropdown content
+    const emojis = getEmojis()
+    let strHtml = emojis.map(emoji => {
+        return `
+        <div class="emoji-item" data-id="${emoji.id}">
+            <img title="${emoji.name}" src="${emoji.url}" alt="${emoji.name}" onclick="onSelectEmoji(this)">
+        </div>
+    `
+    }).join('')
+    emojiDropdown.innerHTML = strHtml
+
+    // Toggle dropdown on button click (only add listener once)
+    if (!addEmojiBtn.hasAttribute('data-listener-added')) {
+        addEmojiBtn.setAttribute('data-listener-added', 'true')
+
+        addEmojiBtn.addEventListener('click', (e) => {
+            e.stopPropagation()
+            const isVisible = emojiDropdown.style.display !== 'none'
+            emojiDropdown.style.display = isVisible ? 'none' : 'grid'
+        })
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!addEmojiBtn.contains(e.target) && !emojiDropdown.contains(e.target)) {
+                emojiDropdown.style.display = 'none'
+            }
+        })
+
+        // Close dropdown when emoji is selected
+        emojiDropdown.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                setTimeout(() => {
+                    emojiDropdown.style.display = 'none'
+                }, 100)
+            }
+        })
+    }
+}
 
 /////////////////// meme gallery//////////////////////////////
 function onImageGallery() {
@@ -523,7 +686,7 @@ function onImageGallery() {
     if (canvasContainer) {
         canvasContainer.style.display = 'none'
     }
-    
+
     // Show gallery
     showGallery()
     selectedImgMode = true
@@ -534,7 +697,7 @@ function showGallery() {
     let keywordSearchCountMapHtml = getKeywordSearchCountMapHtml()
     // Store imgs for filtering
     gGalleryImgs = imgs
-    
+
     var strHtml = imgs.map(img => {
         // Convert keywords array to string for data attribute
         const keywordsStr = img.keyWords.join(',')
@@ -544,7 +707,7 @@ function showGallery() {
         </div>
     `
     }).join('')
-    
+
     let wholeContent = `
         <h1>Select Image</h1>
         <input type="text" id="meme-search" placeholder="Search Memes" oninput="onFilterMemes(this.value)">
@@ -575,13 +738,13 @@ function onSelectImg(imgEl) {
 
 function onFilterMemes(searchText) {
     if (!gGalleryImgs) return
-    
+
     const searchLower = searchText.toLowerCase().trim()
     const galleryGrid = document.querySelector('.gallery-grid')
     if (!galleryGrid) return
-    
+
     const galleryItems = galleryGrid.querySelectorAll('.gallery-item')
-    
+
     galleryItems.forEach(item => {
         const keywords = item.getAttribute('data-keywords').toLowerCase()
         // Show item if search is empty or if any keyword matches
@@ -597,12 +760,12 @@ function closeGallery() {
     // Hide gallery
     const details = document.querySelector('.meme-selector')
     details.style.display = 'none'
-    
+
     // Show canvas
     const canvasContainer = document.querySelector('.canvas-container')
     if (canvasContainer) {
         canvasContainer.style.display = 'block'
     }
-    
+
     selectedImgMode = false
 }

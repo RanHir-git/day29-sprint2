@@ -39,6 +39,10 @@
         <button id="addTextBtn">Add Text</button>
         <input type="number" id="fontSize" value="20" min="10" max="100">
         <input type="color" id="textColor" value="#000000">
+        <div class="emoji-dropdown-container">
+            <button id="addEmojiBtn">Add Emoji</button>
+            <div id="emoji-dropdown" class="emoji-dropdown" style="display: none;"></div>
+        </div>
         <button id="clearBtn">Clear Canvas</button>
     </span>
     <span class="share-download-container">
@@ -58,6 +62,7 @@
     <script src="js/services/editor.service.js"></script>
     <script src="js/services/canvas.service.js"></script>
     <script src="js/services/meme.service.js"></script>
+    <script src="js/services/emojis.js"></script>
     <script src="js/controller.js"></script>
     <script src="js/download-share-controller.js"></script>
     <script>

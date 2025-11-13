@@ -1,6 +1,8 @@
 let textObjects = [] // Array storing all text objects on canvas
 let editingIndex = -1 // Index of currently editing text (-1 = none)
 let addingTextMode = false // Whether "Add Text" mode is active
+let emojiObjects = [] // Array storing all emoji objects on canvas
+let selectedEmojiIndex = -1 // Index of currently selected emoji (-1 = none)
 
 function getEditingIndex() {
     return editingIndex
@@ -14,6 +16,10 @@ function setEditingIndex(index) {
 
 function getTextObjects() {
     return textObjects
+}
+
+function getEmojiObjects() {
+    return emojiObjects
 }
 
 function ClearCanvas(ctx, canvas) {
