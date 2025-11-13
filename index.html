@@ -32,31 +32,39 @@
             <option value="Times New Roman">Times New Roman</option>
             <option value="Courier New">Courier New</option>
             <option value="Impact">Impact</option>
-        </select>        
+        </select>
         <span>
-        <button id="backgroundBtn", onclick="onImageGallery()">Meme Selector</button>    
+            <button id="backgroundBtn" , onclick="onImageGallery()">Meme Selector</button>
         </span>
         <button id="addTextBtn">Add Text</button>
         <input type="number" id="fontSize" value="20" min="10" max="100">
         <input type="color" id="textColor" value="#000000">
-        <button id="clearBtn" onclick="onClearCanvas()">Clear Canvas</button>
+        <button id="clearBtn">Clear Canvas</button>
     </span>
-
+    <span class="share-download-container">
+        <a href="#" class="btn" onclick="onDownloadImg(this)" download="my-img.jpg">Download Image from Canvas</a>
+        <form method="POST" enctype="multipart/form-data" onsubmit="onShareImg(event)">
+            <button class="btn" type="submit">Share img to facebook:</button>
+        </form>
+    </span>
     <div class="canvas-container">
         <div id="canvasWrapper">
             <canvas width="400" height="400"></canvas>
         </div>
     </div>
-    <div class="meme-selector" style="display: none;"><h1>Select Image</h1></div>
+    <div class="meme-selector" style="display: none;">
+        <h1>Select Image</h1>
+    </div>
     <script src="js/services/editor.service.js"></script>
     <script src="js/services/canvas.service.js"></script>
     <script src="js/services/meme.service.js"></script>
     <script src="js/controller.js"></script>
+    <script src="js/download-share-controller.js"></script>
     <script>
         // Make onSelectImg available globally (defined in editor.service.js)
         window.onSelectImg = onSelectImg
     </script>
-    
+
 </body>
 
 </html>

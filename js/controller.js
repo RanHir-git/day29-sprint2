@@ -3,8 +3,11 @@
 let gStartPos
 let selectedImgMode = false
 let gSelectedImg = null
-let gSelectedImgEl = null
-// Note: addingTextMode and editingIndex are declared in canvas.service.js
+let elGSelectedImg = null
+let gGalleryImgs = null  // Store gallery images for filtering
+let gUpdateActiveTextInput = null  // Function to update active text input position
+let gSelectedEmoji = null
+let elGSelectedEmoji = null
 
 //dom elements
 let gElCanvas
@@ -16,7 +19,16 @@ let fontSizeInput
 let fontFamilySelect
 let textColorInput
 
+//drag vs click
+let isDragging = false   //to detect drag
+let hasDragged = false   //track if a drag occurred (to prevent click after drag)
+let dragStartPos = null
+let dragOffset = { x: 0, y: 0 }
+let draggedTextIndex = -1   //in textObjects array
+let lastClickTime = 0   //to detect double click
+let lastClickIndex = -1   //to detect double click on same text
 
+//////////////////////////////init/////////////////////////////////////
 function onInit() {
     initDomElements()
     initMemeSettings(gCtx)
@@ -29,8 +41,8 @@ function onInit() {
 // Ensure onInit is available globally
 window.onInit = onInit
 window.onResize = onResize
-window.scrollCarousel = scrollCarousel
 window.onChangeTextColor = onChangeTextColor
+window.onFilterMemes = onFilterMemes
 
 function initDomElements() {
     gElCanvas = document.querySelector('canvas')
@@ -58,12 +70,12 @@ function resizeCanvas() {
 
 function renderCanvas() {
     ClearCanvas(gCtx, gElCanvas)
-    
+
     // Draw background image if one is selected
     if (gSelectedImg && gSelectedImg.complete) {
         gCtx.drawImage(gSelectedImg, 0, 0, gElCanvas.width, gElCanvas.height)
     }
-    
+
     // Draw all text objects
     textObjects = getTextObjects()
     textObjects.forEach((obj, index) => {
@@ -84,6 +96,7 @@ function onClearCanvas() {
     ClearCanvas(gCtx, gElCanvas)
 
 }
+//////////////////////////////canvas events//////////////////////////////
 //index of text at click position
 function onClickedTextIndex(x, y) {
     textObjects = getTextObjects()
@@ -108,10 +121,10 @@ function onClickedTextIndex(x, y) {
 function finishEditing(e) {
     const input = e.target
     const index = parseInt(input.dataset.textIndex)
-    
+
     // List of control IDs that should be allowed to receive focus
     const allowedControls = ['fontSize', 'fontFamily', 'textColor']
-    
+
     // If no relatedTarget (clicking on canvas/body), allow finishing editing
     if (!e || !e.relatedTarget) {
         // Continue to finish editing
@@ -120,19 +133,14 @@ function finishEditing(e) {
         const toolbarContainer = document.querySelector('.toolbar-container')
         const canvasWrapper = document.getElementById('canvasWrapper')
         const canvas = document.querySelector('canvas')
-        
+
         // If clicking on an allowed control, don't finish editing
         if (allowedControls.includes(targetId)) {
             return
         }
-        
-        // If clicking on canvas or canvas wrapper, finish editing
-        if (e.relatedTarget === canvas || e.relatedTarget === canvasWrapper || 
-            (canvasWrapper && canvasWrapper.contains(e.relatedTarget))) {
-            // Allow canvas click to finish editing - don't return early
-        } 
+
         // If clicking on toolbar (but not allowed controls), prevent finishing
-        else if (toolbarContainer && toolbarContainer.contains(e.relatedTarget)) {
+        if (toolbarContainer && toolbarContainer.contains(e.relatedTarget)) {
             // Only prevent if it's NOT an allowed control
             if (!allowedControls.includes(targetId)) {
                 setTimeout(() => input.focus(), 0)
@@ -147,7 +155,7 @@ function finishEditing(e) {
             }
         }
     }
-    
+
     textObjects = getTextObjects()
     const newText = input.value.trim()
     if (newText) {
@@ -166,14 +174,14 @@ function finishEditing(e) {
     if (typeof setEditingIndex === 'function') {
         setEditingIndex(-1)
     }
-    window.updateActiveTextInput = null
+    gUpdateActiveTextInput = null
     renderCanvas()
 }
 
 function createTextInput(obj, index) {  //index is to know where to put/delete in textObjects
     // Convert canvas coordinates to screen coordinates
     const screenPos = canvasToScreen(obj.x, obj.y, gElCanvas.getBoundingClientRect(), canvasWrapper.getBoundingClientRect(), gElCanvas.width, gElCanvas.height)
-    
+
     // Create and style the input element
     const input = createStyledInputElement(obj, screenPos)
     input.dataset.textIndex = index
@@ -192,7 +200,7 @@ function createTextInput(obj, index) {  //index is to know where to put/delete i
     // Store index on input element for later access (already set above, but ensuring it's there)
     // Flag to track if we're clicking on toolbar (stored on input element)
     input.isClickingToolbar = false
-    
+
     // Prevent blur when clicking on toolbar controls
     const toolbarContainer = document.querySelector('.toolbar-container')
     if (toolbarContainer) {
@@ -206,7 +214,7 @@ function createTextInput(obj, index) {  //index is to know where to put/delete i
 
     // Finish editing text when click on canvas
     input.addEventListener('blur', finishEditing)
-    
+
     // Refocus input after user finishes with allowed controls
     const allowedControls = ['fontSize', 'fontFamily', 'textColor']
     allowedControls.forEach(controlId => {
@@ -238,20 +246,37 @@ function createTextInput(obj, index) {  //index is to know where to put/delete i
             if (typeof setEditingIndex === 'function') {
                 setEditingIndex(-1)
             }
-            window.updateActiveTextInput = null
+            gUpdateActiveTextInput = null
             renderCanvas()
         }
     })
 
     // Store update function for external access
-    window.updateActiveTextInput = updateInputStyling
+    gUpdateActiveTextInput = updateInputStyling
 }
 
 
 function handleCanvasClick(e) {
+    if (isDragging) return
+
+    // Don't process click if a drag just occurred
+    if (hasDragged) {
+        hasDragged = false
+        return
+    }
+
     const { x, y } = XYHandler(e)
     const clickedIndex = onClickedTextIndex(x, y)
-    if (clickedIndex !== -1) {  //edit existing text buble
+    const currentTime = Date.now()
+
+    // Check for double-click (within 300ms and same text)
+    const isDoubleClick = (currentTime - lastClickTime < 300) && (clickedIndex === lastClickIndex) && (clickedIndex !== -1)
+
+    // Update last click info
+    lastClickTime = currentTime
+    lastClickIndex = clickedIndex
+
+    if (isDoubleClick && clickedIndex !== -1) {  // Double-click to edit existing text
         addingTextMode = false
         onUpdateAddTextButton()
         editingIndex = clickedIndex
@@ -267,7 +292,7 @@ function handleCanvasClick(e) {
         }
         renderCanvas() // Hide the text being edited before showing input
         createTextInput(textObjects[clickedIndex], clickedIndex)
-    } else if (addingTextMode) {    //add new text
+    } else if (addingTextMode && clickedIndex === -1) {    //add new text
         const newText = createNewText(x, y, fontSizeInput, fontFamilySelect, textColorInput)
         textObjects.push(newText)
         editingIndex = textObjects.length - 1
@@ -283,11 +308,16 @@ function handleCanvasClick(e) {
 
 // hover handler 
 function handleCanvasHover(e) {
+    if (isDragging) {
+        gElCanvas.style.cursor = 'grabbing'
+        return
+    }
+
     const { x, y } = XYHandler(e)
     const hoveredIndex = onClickedTextIndex(x, y)
 
     if (hoveredIndex !== -1) {
-        gElCanvas.style.cursor = 'pointer'
+        gElCanvas.style.cursor = 'grab'
     } else if (addingTextMode) {
         gElCanvas.style.cursor = 'crosshair'
     } else {
@@ -310,29 +340,99 @@ function onUpdateAddTextButton() {
 function onClearButton() {
     if (confirm('Are you sure you want to clear the canvas?')) {
         textObjects = []
+        // Clear the selected image
+        gSelectedImg = null
+        selectedImgMode = false
+        // Remove selected class from image if it exists
+        if (elGSelectedImg) {
+            elGSelectedImg.classList.remove('selected')
+            elGSelectedImg = null
+        }
         renderCanvas()
-    }
+    }else return
+}
+
+function handleCanvasDragStart(e) {
+    // Don't start drag if text is being edited or in add text mode
+    if (editingIndex !== -1 || addingTextMode) return
+
+    hasDragged = false  // Reset drag flag
+    dragStartPos = XYHandler(e)
+    draggedTextIndex = onClickedTextIndex(dragStartPos.x, dragStartPos.y)
+    if (draggedTextIndex === -1) return
+    isDragging = true
+    // Calculate offset from click point to text position
+    textObjects = getTextObjects()
+    const draggedText = textObjects[draggedTextIndex]
+    dragOffset.x = dragStartPos.x - draggedText.x
+    dragOffset.y = dragStartPos.y - draggedText.y
+}
+
+function handleCanvasDragEnd(e) {
+    if (!isDragging) return
+    isDragging = false
+    draggedTextIndex = -1
+    dragOffset = { x: 0, y: 0 }
+    renderCanvas()
+}
+
+function handleCanvasDrag(e) {
+    if (!isDragging || draggedTextIndex === -1) return
+    hasDragged = true  // Mark that a drag occurred
+    const { x, y } = XYHandler(e)
+    textObjects = getTextObjects()
+    const draggedText = textObjects[draggedTextIndex]
+
+    // Calculate new position (subtract offset to maintain relative position)
+    draggedText.x = x - dragOffset.x
+    draggedText.y = y - dragOffset.y
+    renderCanvas()
 }
 
 // Setup all canvas event listeners
 function setupCanvasEvents() {
     // Mouse events
     gElCanvas.addEventListener('click', handleCanvasClick)
-    gElCanvas.addEventListener('mousemove', handleCanvasHover)
+    gElCanvas.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            handleCanvasDrag(e)
+        } else {
+            handleCanvasHover(e)
+        }
+    })
+    gElCanvas.addEventListener('mousedown', handleCanvasDragStart)
+    gElCanvas.addEventListener('mouseup', handleCanvasDragEnd)
+    gElCanvas.addEventListener('mouseout', handleCanvasDragEnd)
 
-    // Touch events
+    // Touch events -   didnt do on my own, got it from internet
     gElCanvas.addEventListener('touchstart', (e) => {
         e.preventDefault()
-        handleCanvasClick(e)
+        handleCanvasDragStart(e)
     })
     gElCanvas.addEventListener('touchmove', (e) => {
         e.preventDefault()
-        handleCanvasHover(e)
+        if (isDragging) {
+            handleCanvasDrag(e)
+        } else {
+            handleCanvasHover(e)
+        }
     })
     gElCanvas.addEventListener('touchend', (e) => {
         e.preventDefault()
+        handleCanvasDragEnd(e)
+        // Handle double-tap for editing (simplified - could be improved)
         if (e.changedTouches && e.changedTouches[0]) {
-            handleCanvasClick(e)
+            const { x, y } = XYHandler(e)
+            const clickedIndex = onClickedTextIndex(x, y)
+            const currentTime = Date.now()
+            const isDoubleTap = (currentTime - lastClickTime < 300) && (clickedIndex === lastClickIndex) && (clickedIndex !== -1)
+            if (isDoubleTap) {
+                lastClickTime = 0 // Reset to prevent triple-tap
+                handleCanvasClick(e)
+            } else {
+                lastClickTime = currentTime
+                lastClickIndex = clickedIndex
+            }
         }
     })
 }
@@ -368,8 +468,8 @@ function onChangeTextProperty(ev, property) {
         if (textObjects[editingIndex]) {
             textObjects[editingIndex][property] = value
             // Update the input field styling
-            if (window.updateActiveTextInput) {
-                window.updateActiveTextInput()
+            if (gUpdateActiveTextInput) {
+                gUpdateActiveTextInput()
             }
             renderCanvas()
         }
@@ -388,11 +488,7 @@ function onChangeFontFamily(ev) {
     onChangeTextProperty(ev, 'fontFamily')
 }
 
-
-function onDownloadImg(elLink) {
-    const imgContent = gElCanvas.toDataURL('image/jpeg')
-    elLink.href = imgContent
-}
+//////////////////////////////emojis/////////////////////////////////////
 
 function onSelectEmoji(imgEl) {
     //unselect if selected
@@ -407,87 +503,106 @@ function onSelectEmoji(imgEl) {
     const img = new Image()
     img.src = imgEl.src
     gSelectedImg = img
-    gSelectedImgEl = imgEl
+    elGSelectedImg = imgEl
     selectedImgMode = true
 }
 
 function resetSelectedEmoji() {
-    gSelectedImgEl.classList.remove('selected')
+    elGSelectedImg.classList.remove('selected')
     gSelectedImg = null
-    gSelectedImgEl = null
+    elGSelectedImg = null
     selectedImgMode = false
 }
 
-function renderImg(img) {
-    gElCanvas.height = (img.naturalHeight / img.naturalWidth) * gElCanvas.width
-    gCtx.drawImage(img, 0, 0, gElCanvas.width, gElCanvas.height)
-}
 
 
+/////////////////// meme gallery//////////////////////////////
 function onImageGallery() {
-    let imgs = getImgs()
-    var strHtml = imgs.map(img => `<li><img title="${img.alt}" src="${img.src}" alt="${img.alt}" onclick="onSelectImg(this)"></li>`)
-    showCarouselContent(strHtml.join(''))
+    // Hide canvas and show gallery
+    const canvasContainer = document.querySelector('.canvas-container')
+    if (canvasContainer) {
+        canvasContainer.style.display = 'none'
+    }
+    
+    // Show gallery
+    showGallery()
+    selectedImgMode = true
 }
 
-
-function showCarouselContent(content) {
+function showGallery() {
+    let imgs = getImgs()
+    let keywordSearchCountMapHtml = getKeywordSearchCountMapHtml()
+    // Store imgs for filtering
+    gGalleryImgs = imgs
+    
+    var strHtml = imgs.map(img => {
+        // Convert keywords array to string for data attribute
+        const keywordsStr = img.keyWords.join(',')
+        return `
+        <div class="gallery-item" data-keywords="${keywordsStr}" data-id="${img.id}">
+            <img title="${img.alt}" src="${img.url}" alt="${img.alt}" onclick="onSelectImg(this)">
+        </div>
+    `
+    }).join('')
+    
     let wholeContent = `
         <h1>Select Image</h1>
-        <div class="carousel-container">
-            <button class="carousel-btn carousel-btn-left" onclick="scrollCarousel(-1)">◄</button>
-            <ul id="carousel-list">${content}</ul>
-            <button class="carousel-btn carousel-btn-right" onclick="scrollCarousel(1)">►</button>
+        <input type="text" id="meme-search" placeholder="Search Memes" oninput="onFilterMemes(this.value)">
+        ${keywordSearchCountMapHtml}
+        <button onclick="onFilterMemes('')">Show All Memes</button>
+        <div class="gallery-grid">
+            ${strHtml}
         </div>
     `
     const details = document.querySelector('.meme-selector')
     details.innerHTML = wholeContent
     details.style.display = 'flex'
-    
-    // Add scroll event listener to update button states
-    const carousel = document.getElementById('carousel-list')
-    if (carousel) {
-        carousel.addEventListener('scroll', updateCarouselButtons)
-        updateCarouselButtons()
-    }
 }
 
-function scrollCarousel(direction) {
-    const carousel = document.getElementById('carousel-list')
-    if (!carousel) return
-    const newScroll = getNewScroll(direction,carousel)
-    carousel.scrollTo({
-        left: newScroll,
-        behavior: 'smooth'
-    })
-    setTimeout(updateCarouselButtons, 100)
-}
-
-function updateCarouselButtons() {  //update the scroll buttons-unavailable when at the start or end
-    const carousel = document.getElementById('carousel-list')
-    if (!carousel) return
-    const leftBtn = document.querySelector('.carousel-btn-left')
-    const rightBtn = document.querySelector('.carousel-btn-right')
-    if (!leftBtn || !rightBtn) return
-    const maxScroll = carousel.scrollWidth - carousel.clientWidth
-    const currentScroll = carousel.scrollLeft
-    // Enable/disable buttons based on scroll position
-    leftBtn.disabled = currentScroll <= 0
-    rightBtn.disabled = currentScroll >= maxScroll - 1
-}
 
 function onSelectImg(imgEl) {
+    // Get the image URL from the clicked img element
+    const imgUrl = imgEl.src
     const img = new Image()
-    img.onload = function() {
+    img.onload = function () {
         gElCanvas.height = (img.naturalHeight / img.naturalWidth) * gElCanvas.width
         gSelectedImg = img // Store the image for redrawing
         renderCanvas() // Redraw everything including the image
-        closeContent()
+        closeGallery()
     }
-    img.src = imgEl.src
+    img.src = imgUrl
 }
 
-function closeContent() {
+function onFilterMemes(searchText) {
+    if (!gGalleryImgs) return
+    
+    const searchLower = searchText.toLowerCase().trim()
+    const galleryGrid = document.querySelector('.gallery-grid')
+    if (!galleryGrid) return
+    
+    const galleryItems = galleryGrid.querySelectorAll('.gallery-item')
+    
+    galleryItems.forEach(item => {
+        const keywords = item.getAttribute('data-keywords').toLowerCase()
+        // Show item if search is empty or if any keyword matches
+        if (!searchLower || keywords.includes(searchLower)) {
+            item.style.display = 'block'
+        } else {
+            item.style.display = 'none'
+        }
+    })
+}
+
+function closeGallery() {
+    // Hide gallery
     const details = document.querySelector('.meme-selector')
     details.style.display = 'none'
+    
+    // Show canvas
+    const canvasContainer = document.querySelector('.canvas-container')
+    if (canvasContainer) {
+        canvasContainer.style.display = 'block'
+    }
+    
+    selectedImgMode = false
 }

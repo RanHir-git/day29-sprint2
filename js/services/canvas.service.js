@@ -57,12 +57,20 @@ function canvasToScreen(canvasX, canvasY,canvasRect,wrapperRect,gElCanvasWidth,g
 }
 
 function XYHandler(e) {     //get x,y on canvas
-    const rect = gElCanvas.getBoundingClientRect()
-    // Handle both mouse and touch events
+    const canvas = document.querySelector('canvas')
+    if (!canvas) return { x: 0, y: 0 }
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+    // Handle both mouse and touch events - added the touch handling part from internet
     const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || (e.changedTouches && e.changedTouches[0]?.clientX)
     const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || (e.changedTouches && e.changedTouches[0]?.clientY)
-    const x = clientX - rect.left
-    const y = clientY - rect.top + fontSizeInput.value/2
+
+    const relativeX = clientX - rect.left
+    const relativeY = clientY - rect.top
+    const x = (relativeX * scaleX) - 20  // because of the border of the canvas
+    const y = relativeY * scaleY
+    
     return { x, y }
 }
 
