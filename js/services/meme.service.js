@@ -1,4 +1,8 @@
 'use strict'
+
+// Make onKeywordPressed available globally
+window.onKeywordPressed = onKeywordPressed
+
 const itemWidth = 230
 const gImgsPath = [{ id: 1, url: 'img/meme-imgs (square)/1.jpg', keyWords: ['funny', 'sarcastic', 'human'] },
 { id: 2, url: 'img/meme-imgs (square)/2.jpg', keyWords: ['cute', 'pet','dog'] },
@@ -54,8 +58,6 @@ function onKeywordPressed(keyword) {
     }
 }
 
-// Make onKeywordPressed available globally
-window.onKeywordPressed = onKeywordPressed
 
 function getImgs() {
     const imgs = []

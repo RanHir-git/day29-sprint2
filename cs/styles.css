@@ -10,7 +10,9 @@
 @import url('/cs/components/toolbar.css');
 @import url('/cs/components/canvas.css');
 @import url('/cs/components/meme-selector.css');
-@import url('/cs/components/main-header.css');
+@import url('/cs/components/main-header.css');  
+@import url('/cs/components/share-download.css');
+@import url('/cs/components/clear-modal.css');
 
 /* MEDIA QUERIES - Must be last to override component styles */
 @import url('/cs/setup/mq.css');

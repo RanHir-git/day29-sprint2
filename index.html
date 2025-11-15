@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Ran Meme Generator</title>
     <link rel="stylesheet" href="cs/styles.css">
 </head>
 
@@ -28,59 +28,82 @@
         </nav>
     </header>
     <div class="main-layout">
-        <div class="toolbar-download-share-container">
-            <span class="toolbar-container">
-                <select id="fontFamily" title="Select Font Family">
-                    <option value="Arial">Arial</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                    <option value="Courier New">Courier New</option>
-                    <option value="Impact">Impact</option>
-                </select>
-                <span>
-                    <button id="memeSelectorBtn" , onclick="onImageGallery()">Meme Selector</button>
-                </span>
-                <button id="addTextBtn">Add Text</button>
-                <input type="number" id="fontSize" value="20" min="10" max="100" title="Select Font Size">
-                <input type="color" id="textColor" value="#000000" title="Select Text Color">
-                <div class="emoji-dropdown-container">
-                    <button id="addEmojiBtn">Add Emoji</button>
-                    <div id="emoji-dropdown" class="emoji-dropdown" style="display: none;"></div>
-                </div>
-                <div class="emoji-size-control">
-                    <h3>Emoji Size</h3>
-                    <div class="emoji-size-btn-container">
-                        <button class="emoji-size-btn emoji-size-up" id="emojiSizeUp">▲</button>
-                        <button class="emoji-size-btn emoji-size-down" id="emojiSizeDown">▼</button>
+        <div class="top-section">
+            <div class="toolbar-download-share-container">
+                <span class="toolbar-container">
+                    <select id="fontFamily" title="Select Font Family">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Impact">Impact</option>
+                    </select>
+                    <span>
+                        <button id="memeSelectorBtn" , onclick="onImageGallery()">Meme Selector</button>
+                    </span>
+                    <button id="addTextBtn">Add Text</button>
+                    <input type="number" id="fontSize" value="20" min="10" max="100" title="Select Font Size">
+                    <div class="color-input-wrapper">
+                        <span class="color-icon">🎨</span>
+                        <input type="color" id="textColor" value="#000000" title="Select Text Color">
                     </div>
+                    <div class="emoji-dropdown-container">
+                        <button id="addEmojiBtn">😀</button>
+                        <div id="emoji-dropdown" class="emoji-dropdown" style="display: none;"></div>
+                    </div>
+                    <div class="emoji-size-control">
+                        <div class="emoji-size-btn-container">
+                            <button class="emoji-size-btn emoji-size-up" id="emojiSizeUp">▲</button>
+                            <button class="emoji-size-btn emoji-size-down" id="emojiSizeDown">▼</button>
+                        </div>
+                    </div>
+                    <button id="clearBtn">Clear Canvas</button>
+                    <button id="deleteBtn" title="Delete Selected">X</button>
+                </span>
+            </div>
+            <div class="canvas-container">
+                <div id="canvasWrapper">
+                    <canvas width="400" height="400"></canvas>
                 </div>
-                <button id="clearBtn">Clear Canvas</button>
-            </span>
-            <span class="share-download-container">
-                <a href="#" class="btn" onclick="onDownloadImg(this)" download="my-img.jpg">Download Image from
-                    Canvas</a>
-                <form method="POST" enctype="multipart/form-data" onsubmit="onShareImg(event)">
-                    <button class="btn" type="submit">Share img to facebook:</button>
-                </form>
-            </span>
-        </div>
-        <div class="canvas-container">
-            <div id="canvasWrapper">
-                <canvas width="400" height="400"></canvas>
             </div>
         </div>
+        <span class="share-download-container">
+            <a href="#" class="btn" onclick="onDownloadImg(this)" download="my-img.jpg">Download Image from
+                Canvas</a>
+            <form method="POST" enctype="multipart/form-data" onsubmit="onShareImg(event)">
+                <button class="btn" type="submit">Share img to facebook:</button>
+            </form>
+        </span>
     </div>
     <div class="meme-selector" style="display: none;">
         <h1>Select Image</h1>
     </div>
+    
+    <!-- Clear Canvas Modal -->
+    <div id="clearModalOverlay" class="clear-modal-overlay">
+        <div class="clear-modal">
+            <h2>Clear Canvas</h2>
+            <p>Are you sure you want to clear the canvas?</p>
+            <div class="clear-modal-buttons">
+                <button class="clear-modal-btn clear-modal-btn-cancel" id="clearModalCancel">Cancel</button>
+                <button class="clear-modal-btn clear-modal-btn-clear" id="clearModalClear">Clear</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/utils/utils.js"></script>
     <script src="js/services/editor.service.js"></script>
     <script src="js/services/canvas.service.js"></script>
     <script src="js/services/meme.service.js"></script>
     <script src="js/services/emojis.js"></script>
+    <script src="js/services/upload.js"></script>
+    <script src="js/services/add-html-elements.js"></script>
+    <script src="js/download-share-controller.js"></script>    
     <script src="js/controller.js"></script>
-    <script src="js/download-share-controller.js"></script>
     <script>
-        // Make onSelectImg available globally (defined in editor.service.js)
+        // Make functions available globally
         window.onSelectImg = onSelectImg
+        window.onUploadImageClick = onUploadImageClick
+        window.onImageUpload = onImageUpload
+        window.onRandomMeme = onRandomMeme
     </script>
 
 </body>

@@ -1,0 +1,88 @@
+/* Clear Canvas Modal */
+.clear-modal-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;   /* so the modal is not clickable , only the content is clickable */
+    transition: opacity 0.3s ease;
+}
+
+.clear-modal-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.clear-modal {
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.clear-modal h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.clear-modal p {
+    margin: 0 0 30px 0;
+    color: #3e3e3e;
+    font-size: 16px;
+}
+
+.clear-modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.clear-modal-btn {
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.clear-modal-btn-cancel {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.clear-modal-btn-cancel:hover {
+    background-color: #d0d0d0;
+}
+
+.clear-modal-btn-clear {
+    background-color: #dc3545;
+    color: white;
+}
+
+.clear-modal-btn-clear:hover {
+    background-color: #c82333;
+}
+
+/* Dim the rest of the screen when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+body.modal-open .main-layout,
+body.modal-open .main-header {
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+

@@ -1,11 +1,27 @@
+html, body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
 button{
     background-color: #3b82f6;
     border-radius: 10px;
     border: none;
     width: 90px;
-    
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    &:hover{
+        cursor: pointer;
+        scale: 1.05;
+        transition: scale 0.2s ease;
+    }
 }
 
 select{
-    background-color: #3b82f6;
+    background-color: #8cb8ff;
 }

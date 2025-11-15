@@ -1,0 +1,54 @@
+
+
+.share-download-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+    align-self: center;
+    justify-content: center;
+    border: 1px solid var(--share-download-color);
+    border-radius: 6px;
+    justify-items: center;
+    align-items: center;
+}
+
+
+.share-download-container .btn {
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    flex: 1;
+    text-align: center;
+    box-sizing: border-box;
+    border-right: 1px solid var(--share-download-color);
+    color: var(--share-download-color);
+    &:hover {
+        scale:1.05;
+        transition: scale 0.2s ease !important;
+    }
+}
+
+.share-download-container form {
+    margin: 0;
+    flex: 1;
+}
+
+.share-download-container form button {
+    color: var(--share-download-color);
+    box-shadow: none;
+    background: none !important;
+    border: none !important;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    &:hover {
+        background-color: #ffeded;
+        transition: background-color 0.2s ease !important;
+    }
+}   

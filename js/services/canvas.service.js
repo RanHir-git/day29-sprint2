@@ -8,11 +8,12 @@ function getEditingIndex() {
     return editingIndex
 }
 
-function setEditingIndex(index) {
-    editingIndex = index
+
+function resetAddingItemMode() {
+    selectedEmojiIndex = -1
+    addingTextMode = false
+    editingIndex = -1
 }
-
-
 
 function getTextObjects() {
     return textObjects

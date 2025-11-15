@@ -1,14 +1,23 @@
 .main-layout {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     min-width: 0;
     max-width: 100%;
-    background-color: rgb(86, 90, 137);
+    background: url('/img/wallpaper/Modern_abstract_blue_transparent_crystal_pattern_background.jpg') center/cover no-repeat, #3B4FBF;
     gap: 20px;
     padding: 20px;
     box-sizing: border-box;
-    
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.top-section {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
 }
 body{
-    background-color:rgb(132, 142, 248) ;
+    background: linear-gradient(to right, #3B4FBF, #000000);
 }

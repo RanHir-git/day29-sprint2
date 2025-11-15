@@ -6,11 +6,11 @@
     flex: 1;
     min-width: 0;
     padding: 10px;
-    background-color: #f0f0f0;
+    background-color: #0000004b;
     border-radius: 4px;
     box-sizing: border-box;
     height: 400px;
-    background-color: #b1cfff;
+    align-self: center;
 }
 
 .toolbar-container {
@@ -25,32 +25,92 @@
     width: 100%;
     box-sizing: border-box;
     justify-self: center;
+    scale: 1.2;
+}
+
+/* Style color input wrapper */
+.color-input-wrapper {
+    grid-row: 3;
+    grid-column: 6 / 7;
+    display: flex;
+    align-items: center;
+    border: 2px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 30px;
+    max-height: 40px;
+    box-sizing: border-box;
+    align-self: center;
+    scale: 1.2;
+    margin-right: 10px;
+
+}
+
+.color-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    background-color: transparent;
+    height: 100%;
+    min-height: 30px;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+#textColor {
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    min-height: 30px;
+    padding: 0;
+    background: transparent;
+    flex: 1;
+    width: 100%;
+}
+
+.color-input-wrapper:hover {
+    opacity: 0.9;
+    scale:1.25;
+    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
 }
 
 /* Row 1: Meme Selector, Clear Canvas */
-.toolbar-container > span {
+.toolbar-container>span {
     display: contents;
 }
 
 .toolbar-container button:hover {
     background-color: #ffeded;
+    scale: 1.25;
+    transition: scale 0.2s ease;
     cursor: pointer;
 }
 
 #memeSelectorBtn {
     grid-row: 1;
-    grid-column: 1 / 4;
+    grid-column: 4;
     justify-self: center;
-    height: 50%;
+    height: 70%;
     align-self: center;
+    transform: translateX(-45%);
 }
 
 #clearBtn {
-    grid-row: 1;
-    grid-column: 4 / 7;
+    grid-row: 4;
+    grid-column: 4;
     justify-self: baseline;
-    height: 50%;
+    height: 70%;
     align-self: center;
+    background-color: #f34242;
+    transform: translateX(-45%);
+
+    &:hover {
+        scale: 1.25;
+        background-color: #ed6f6f;
+        transition: scale 0.2s ease, background-color 0.2s ease;
+    }
 }
 
 /* Row 2: Add Text, Add Emoji */
@@ -58,8 +118,12 @@
     grid-row: 2;
     grid-column: 1 / 4;
     justify-self: center;
-    height: 20%;
+    height: 50%;
+    width: 100px;
     align-self: center;
+    margin-top: 20px;
+    transform: translatex(60%);
+
 }
 
 .emoji-dropdown-container {
@@ -74,17 +138,24 @@
     align-self: center;
     margin-top: 10px;
 }
+
 #addEmojiBtn {
-    height: 70%;
+    height: 170%;
+    width: 100px;
+    transform: translatex(68%);
+    font-size: 20px;
 }
 
-/* Row 3: Font Size, Font Family, Text Color */
+
 #fontSize {
     grid-row: 3;
-    grid-column: 1 / 3;
+    grid-column: 1 / 1;
     justify-self: center;
     height: 30%;
     align-self: center;
+    margin-top: 15px;
+    transform: translate(10%, -10%);
+    background-color: #b1cfff;
 }
 
 #fontFamily {
@@ -93,6 +164,7 @@
     justify-self: center;
     height: 50%;
     align-self: center;
+    max-height: 40px;
 }
 
 #textColor {
@@ -104,45 +176,7 @@
 }
 
 /* Row 4: Share and Download */
-.share-download-container {
-    margin-top: 30px;
-    justify-self:center;
-    grid-row: 4;
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    width: 100%;
-    max-width: 400px;
-    box-sizing: border-box;
-    padding: 0;
-    background-color: transparent;
-    border-radius: 0;
-}
 
-
-.share-download-container .btn {
-    padding: 5px 10px;
-    text-decoration: none;
-    display: block;
-    flex: 1;
-    text-align: center;
-    box-sizing: border-box;
-}
-
-.share-download-container form {
-    margin: 0;
-    flex: 1;
-}
-
-.share-download-container form button {
-    width: 100%;
-    box-sizing: border-box;
-    cursor: pointer;
-    &:hover {
-        background-color: #ffeded;
-    }
-}
 
 /*///////////////////////// emoji add+size controls /////////////////////////*/
 
@@ -195,23 +229,24 @@
 }
 
 .emoji-size-control {
-    gap: 10px;
+
     flex-direction: row;
-    grid-row: 2;
-    grid-column: 6 / 7;
+    grid-row: 3;
+    grid-column: 2 / 3;
     display: flex;
     height: 30%;
     align-self: center;
     justify-self: baseline;
     max-width: 50px;
     margin-bottom: 30px;
+    transform: translate(80%, -10%);
 }
 
 
 .emoji-size-btn-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 10px;
     margin-top: 15px;
 }
 
@@ -227,6 +262,25 @@
     justify-content: center;
     transition: background-color 0.2s;
     box-sizing: border-box;
+
+    &:hover {
+        background-color: #e0e0e0;
+    }
+}
+
+
+#deleteBtn {
+    grid-row: 1;
+    grid-column: 6 / 7;
+    height: 60%;
+    width: 30%;
+    align-self: baseline;
+    justify-self: end;
+    background-color: #f34242;
+    &:hover {
+        background-color: #ed6f6f;
+    }
+
 }
 
 .emoji-size-btn:last-child {
@@ -240,9 +294,15 @@
     border-bottom-right-radius: 4px;
 }
 
-.emoji-size-btn:hover {
-    background-color: #e0e0e0;
+.emoji-size-btn:active:not(:disabled) {
+    background-color: #ccc;
 }
+
+.emoji-size-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
 
 .emoji-size-btn:active {
     background-color: #ccc;

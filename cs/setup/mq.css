@@ -7,6 +7,10 @@
         flex-direction: column !important;
     }
     
+    .top-section {
+        flex-direction: column !important;
+    }
+    
     .toolbar-download-share-container {
         width: 100% !important;
         flex: none !important;
