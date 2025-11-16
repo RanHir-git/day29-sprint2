@@ -46,8 +46,13 @@
                         <button id="memeSelectorBtn" , onclick="onImageGallery()">Meme Selector</button>
                     </span>
                     <button id="addTextBtn">Add Text</button>
-                    
-                    <input type="number" id="fontSize" value="20" min="10" max="100" title="Select Font Size">
+                    <div class="emoji-size-control">
+                        <input type="number" id="fontSize" value="20" min="10" max="100" title="Select Font Size">
+                        <div class="emoji-size-btn-container">
+                            <button class="emoji-size-btn emoji-size-up" id="emojiSizeUp">▲</button>
+                            <button class="emoji-size-btn emoji-size-down" id="emojiSizeDown">▼</button>
+                        </div>
+                    </div>
                     <div class="color-input-wrapper">
                         <span class="color-icon">🎨</span>
                         <input type="color" id="textColor" value="#000000" title="Select Text Color">
@@ -56,12 +61,7 @@
                         <button id="addEmojiBtn">😀</button>
                         <div id="emoji-dropdown" class="emoji-dropdown" style="display: none;"></div>
                     </div>
-                    <div class="emoji-size-control">
-                        <div class="emoji-size-btn-container">
-                            <button class="emoji-size-btn emoji-size-up" id="emojiSizeUp">▲</button>
-                            <button class="emoji-size-btn emoji-size-down" id="emojiSizeDown">▼</button>
-                        </div>
-                    </div>
+                    
                     <button id="clearBtn">Clear Canvas</button>
                     <button id="deleteBtn" title="Delete Selected"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><defs><style>.cls-1{fill:#231f20}</style></defs><g id="trash"><path class="cls-1" d="M20.5 4h-3.64l-.69-2.06a1.37 1.37 0 0 0-1.3-.94h-4.74a1.37 1.37 0 0 0-1.3.94L8.14 4H4.5a.5.5 0 0 0 0 1h.34l1 17.59A1.45 1.45 0 0 0 7.2 24h10.6a1.45 1.45 0 0 0 1.41-1.41L20.16 5h.34a.5.5 0 0 0 0-1zM9.77 2.26a.38.38 0 0 1 .36-.26h4.74a.38.38 0 0 1 .36.26L15.81 4H9.19zm8.44 20.27a.45.45 0 0 1-.41.47H7.2a.45.45 0 0 1-.41-.47L5.84 5h13.32z"/><path class="cls-1" d="M9.5 10a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-.5-.5zM12.5 9a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 1 0v-9a.5.5 0 0 0-.5-.5zM15.5 10a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-.5-.5z"/></g></svg></button>
                 </span>
@@ -103,13 +103,12 @@
     <script src="js/services/upload.js"></script>
     <script src="js/services/add-html-elements.js"></script>
     <script src="js/download-share-controller.js"></script>
+    <script src="js/meme-selector-controller.js"></script>
     <script src="js/controller.js"></script>
     <script>
         // Make functions available globally
-        window.onSelectImg = onSelectImg
         window.onUploadImageClick = onUploadImageClick
         window.onImageUpload = onImageUpload
-        window.onRandomMeme = onRandomMeme
     </script>
 
 </body>

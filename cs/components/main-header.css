@@ -30,6 +30,9 @@
 
 .nav-button{
     background-color: rgb(255, 128, 0);
+    box-sizing: border-box;
+    border-radius: 8px;
+    padding: 5px 10px;
 }
 
 .main-nav-list{
