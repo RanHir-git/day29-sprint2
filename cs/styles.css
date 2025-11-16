@@ -1,21 +1,21 @@
 /* SETUP */
-@import url('cs/setup/vars.css');
-@import url('cs/setup/typography.css');
+@import url('setup/vars.css');
+@import url('setup/typography.css');
 /* BASICS */
-@import url('cs/basics/base.css');
-@import url('cs/basics/layout.css');
-@import url('cs/basics/helpers.css');
+@import url('basics/base.css');
+@import url('basics/layout.css');
+@import url('basics/helpers.css');
 
 /* COMPONENTS */
-@import url('cs/components/toolbar.css');
-@import url('cs/components/canvas.css');
-@import url('cs/components/meme-selector.css');
-@import url('cs/components/main-header.css');  
-@import url('cs/components/share-download.css');
-@import url('cs/components/clear-modal.css');
+@import url('components/toolbar.css');
+@import url('components/canvas.css');
+@import url('components/meme-selector.css');
+@import url('components/main-header.css');  
+@import url('components/share-download.css');
+@import url('components/clear-modal.css');
 
 /* MEDIA QUERIES - Must be last to override component styles */
-@import url('cs/setup/mq.css');
+@import url('setup/mq.css');
 
 
 /* Text input overlay */

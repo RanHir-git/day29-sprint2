@@ -3,7 +3,7 @@
     flex-direction: column;
     min-width: 0;
     max-width: 100%;
-    background: url('/img/wallpaper/Modern_abstract_blue_transparent_crystal_pattern_background.jpg') center/cover no-repeat, #3B4FBF;
+    background: url('../../img/wallpaper/Modern_abstract_blue_transparent_crystal_pattern_background.jpg') center/cover no-repeat, #3B4FBF;
     gap: 20px;
     padding: 20px;
     box-sizing: border-box;

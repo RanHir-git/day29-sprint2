@@ -1,21 +1,21 @@
 /*komigo*/
 @font-face {
     font-family: komigo;
-    src: url('/fonts/konigo/Komigo3DRegular-rg1lK.ttf');
+    src: url('../../fonts/konigo/Komigo3DRegular-rg1lK.ttf');
 }
 /*oi*/
 @font-face {
     font-family: oi;
-    src: url('/fonts/oi/Oi-Regular.ttf');
+    src: url('../../fonts/oi/Oi-Regular.ttf');
 }
 
 /*namskowblue*/
 @font-face {
     font-family: namskowblue;
-    src: url('/fonts/namskowblue/Namskowblue-Rp97V.ttf');
+    src: url('../../fonts/namskowblue/Namskowblue-Rp97V.ttf');
 }
 /*chibi*/
 @font-face {
     font-family: chibi;
-    src: url('/fonts/chibi/TheChibiDemo-d97rE.otf');
+    src: url('../../fonts/chibi/TheChibiDemo-d97rE.otf');
 }
