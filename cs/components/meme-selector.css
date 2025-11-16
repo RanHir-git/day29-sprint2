@@ -4,7 +4,7 @@
     top: calc(var(--main--header--height) + 20px);
     left: 0;
     width: 100%;
-    height: calc(100% - var(--main--header--height) );
+    height: calc(100% - var(--main--header--height));
     background: url('/img/wallpaper/Modern_abstract_blue_transparent_crystal_pattern_background.jpg') center/cover no-repeat, #3B4FBF;
     background-size: cover;
     background-position: center;
@@ -39,7 +39,7 @@
 
 .meme-selector .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
     max-width: 1200px;
     width: 100%;
@@ -62,7 +62,7 @@
 
 .meme-selector .gallery-item img {
     width: 100%;
-    height: 200px;
+    height: 250px;
     object-fit: cover;
     display: block;
 }
@@ -106,4 +106,26 @@
 .meme-selector .upload-item:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+#meme-search {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px;
+    font-size: 14px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#meme-search:focus {
+    outline: none;
+    border-color: #5f9bfa;
+    box-shadow: 0 0 0 3px rgba(28, 25, 55, 0.2);
+}
+
+#meme-search::placeholder {
+    color: #999;
 }

@@ -1,6 +1,6 @@
 .main-header {
     position: relative;
-    z-index: 100;
+    z-index: 10000;
     height: calc(var(--main--header--height) + 20px);
     width: 100%;
     margin: 0 auto;
@@ -22,4 +22,16 @@
     font-weight:lighter;
     font-style: italic;
     text-shadow: 2px 2px 4px rgba(0, 0, 0);
+}
+
+.menu-toggle {
+    display: none;
+}
+
+.nav-button{
+    background-color: rgb(255, 128, 0);
+}
+
+.main-nav-list{
+    gap: 10px;
 }

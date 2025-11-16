@@ -5,7 +5,7 @@
     max-height: calc(100vh - 200px);
     padding: 20px;
     border: 2px solid #ccc;
-    background-color: #b1cfff;
+    background-color: #b1cfff80;
     box-sizing: border-box;
     border-radius: 4px;
     overflow: hidden;

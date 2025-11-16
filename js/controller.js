@@ -54,7 +54,7 @@ function initDomElements() {
 
 }
 
-function onResize() {
+function onResize() {   //window resize handler
     resizeCanvas()
     renderCanvas()
 }
@@ -138,7 +138,7 @@ function renderCanvas() {
 
 //////////////////////////////canvas events//////////////////////////////
 //index of object (text or emoji) at click position
-function onClickedObjectIndex(x, y, type = 'text') {
+function onClickedObjectIndex(x, y, type = 'text') {   
     if (type === 'text') {
         textObjects = getTextObjects()
         for (let i = textObjects.length - 1; i >= 0; i--) {
@@ -181,8 +181,8 @@ function onClearCanvas() {
     ClearCanvas(gCtx, gElCanvas)
 
 }
-// Saves edited text and removes input field
-function finishEditing(e) {
+
+function finishEditing(e) { // Saves edited text and removes input field
     const input = e.target
     const index = parseInt(input.dataset.textIndex)
 
@@ -394,8 +394,8 @@ function handleCanvasClick(e) {
     }
 }
 
-// hover handler 
-function handleCanvasHover(e) {
+
+function handleCanvasHover(e) { // hover handler 
     if (isDragging) {
         // Show grab cursor when dragging emoji, grabbing when dragging text
         gElCanvas.style.cursor = 'grabbing'
@@ -432,11 +432,11 @@ function onUpdateAddTextButton() {
 }
 
 
-function onClearButton() {
+function onClearButton() {  //show modal of clear canvas
     showClearModal()
 }
 
-function showClearModal() {
+function showClearModal() { //should be on another file
     const cleearModal = document.getElementById('clearModalOverlay')
     if (!cleearModal) return
     
@@ -652,6 +652,9 @@ function setupControlEvents() {
 
     // Update button states when emoji selection changes
     updateEmojiSizeButtons()
+
+    // Setup menu toggle
+    initMenuToggle()
 }
 
 //////////////////////////////size controls/////////////////////////////////////
@@ -877,6 +880,9 @@ function onImageGallery() {
         canvasContainer.style.display = 'none'
     }
 
+    // Close mobile menu if open
+    closeMobileMenu()
+
     // Show gallery
     showGallery()
     selectedImgMode = true
@@ -897,7 +903,6 @@ function showGallery() {
 
 
 function onSelectImg(imgEl) {
-    console.log(imgEl)
     // Get the image URL from the clicked img element
     const imgUrl = imgEl.src
     const img = new Image()
@@ -967,6 +972,9 @@ function closeGallery() {
         shareDownloadContainer.style.display = 'flex'
     }
 
+    // Close mobile menu if open
+    closeMobileMenu()
+
     selectedImgMode = false
 }
 
@@ -1004,5 +1012,32 @@ function resetDragClickVars(isAddingtext = false, resetClickTracking = true){
     }
     if (isAddingtext) {
         resetAddingItemMode()
+    }
+}
+
+//////////////////////////////menu toggle/////////////////////////////////////
+function initMenuToggle() {
+    const menuToggle = document.querySelector('.menu-toggle')
+    if (!menuToggle) return
+    
+    menuToggle.addEventListener('click', function() {
+        document.body.classList.toggle('menu-open')
+    })
+
+    // Close menu when clicking on nav items (for better UX on mobile)
+    const navButtons = document.querySelectorAll('.nav-button')
+    navButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Only close if on mobile
+            if (window.innerWidth <= 800 && document.body.classList.contains('menu-open')) {
+                document.body.classList.remove('menu-open')
+            }
+        })
+    })
+}
+
+function closeMobileMenu() {
+    if (window.innerWidth <= 800) {
+        document.body.classList.remove('menu-open')
     }
 }
